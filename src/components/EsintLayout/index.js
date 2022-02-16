@@ -2,10 +2,7 @@ import React, { Component } from 'react';
 
 import { HashRouter } from 'react-router-dom'
 
-import { Layout, Card } from 'antd';
-
 import EsintHeader from './components/EsintHeader';
-import EsintSider from './components/EsintSider';
 
 import BasicRoute from '../../routes'
 
@@ -34,17 +31,10 @@ class EsintLayout extends Component {
   render () {
     return (
       <HashRouter>
-        <Layout>
-          <EsintHeader />
-          <Layout>
-            {/* <EsintSider /> */}
-            <Layout.Content className="layout-main">
-              <Card>
-                <BasicRoute />
-              </Card>
-            </Layout.Content>
-          </Layout>
-        </Layout>
+        <EsintHeader />
+        <div className="layout-main">
+          <BasicRoute />
+        </div>
       </HashRouter>
     );
   }

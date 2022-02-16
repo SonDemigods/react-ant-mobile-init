@@ -2,12 +2,7 @@ import React, { Component } from 'react';
 
 import { withRouter } from 'react-router-dom'
 
-import { Layout, Menu } from 'antd';
-
-import {
-  HomeOutlined,
-  UserOutlined
-} from '@ant-design/icons';
+import { NavBar } from 'antd-mobile';
 
 import './index.less'
 
@@ -19,13 +14,27 @@ class EsintLayout extends Component {
     };
   }
 
-  handleClick ({key = ''}) {
-    this.props.history.push({
-      pathname: key
-    });
-    this.setState({
-      current: key
-    });
+  /**
+   * @functionName getTitle
+   * @return {String} 返回标题
+   * @description 获取标题名称
+   * @author 张航
+   * @date 2022-02-16 17:27:47
+   * @version V1.0.0
+   */
+  getTitle () {
+    return localStorage.getItem('navTitle') || '标题'
+  }
+
+  /**
+   * @functionName back
+   * @description 返回上一页
+   * @author 张航
+   * @date 2022-02-16 17:26:13
+   * @version V1.0.0
+   */
+  back () {
+    this.props.history.go(-1);
   }
 
   /**
@@ -35,39 +44,15 @@ class EsintLayout extends Component {
    * @date 2022-01-11 11:15:44
    * @version V1.0.0
    */
-  init () {
-    const {location} = this.props;
-    const {pathname} = location;
-    this.setState({
-      current: pathname
-    })
-  }
+  init () {}
 
   componentDidMount () {
     this.init();
   }
 
   render () {
-    const { current } = this.state
     return (
-      <Layout.Header>
-        <div className="logo">
-          LOGO
-        </div>
-        <Menu
-          onClick={(key) => this.handleClick(key)}
-          selectedKeys={[current]}
-          mode="horizontal"
-        // theme="dark"
-        >
-          <Menu.Item key="/" icon={<HomeOutlined />}>
-            首页
-          </Menu.Item>
-          <Menu.Item key="/list" icon={<UserOutlined />}>
-            人员管理
-          </Menu.Item>
-        </Menu>
-      </Layout.Header>
+      <NavBar className="layout-header" onBack={() => this.back()}>{this.getTitle()}</NavBar>
     );
   }
 }

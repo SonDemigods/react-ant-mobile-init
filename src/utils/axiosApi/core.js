@@ -1,7 +1,7 @@
 import axios from 'axios'
 import qs from 'qs'
 
-import { message } from 'antd';
+import { Toast } from 'antd-mobile';
 
 // 导入错误代码
 import errorCode from './errorCode'
@@ -53,7 +53,7 @@ class HttpRequest {
           data
         } = res
         if (data.errorCode !== 200) {
-          message.warning({
+          Toast.show({
             content: data.errorDescription
           })
         }
@@ -70,7 +70,7 @@ class HttpRequest {
         if (status === 404) {
           msg = msg + _error.config.url
         }
-        message.error({
+        Toast.show({
           content: msg
         })
         console.log(msg)
