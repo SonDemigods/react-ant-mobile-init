@@ -1,0 +1,55 @@
+.ant-layout-header {
+  background: rgb(38, 41, 53);
+  height: 52px;
+  box-sizing: border-box;
+  padding: 0 10px;
+
+  .logo {
+    height: 52px;
+    line-height: 52px;
+    font-size: 30px;
+    color: #fff;
+    float: left;
+    margin-right: 10px;
+    width: 120px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .ant-menu-root {
+    background: none;
+  }
+
+  .ant-menu-horizontal {
+    border: none;
+  }
+
+  .ant-menu-item-selected,
+  .ant-menu-item-active {
+    color: #fff !important;
+  }
+
+  .ant-menu-item {
+    line-height: 52px;
+    color: #999;
+
+    &::before {
+      content: "";
+    }
+
+    &::after {
+      border: none !important;
+    }
+
+    &:hover {
+      color: #fff;
+      line-height: 48px !important;
+
+      &::before {
+        display: block;
+        height: 0;
+        border-top: 2px solid #fff;
+      }
+    }
+  }
+}
