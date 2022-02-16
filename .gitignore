@@ -1,3 +1,11 @@
+# IDE
+.vscode
+.VSCodeCounter
+.idea
+
+# File
+.DS_Store
+
 # Logs
 logs
 *.log
