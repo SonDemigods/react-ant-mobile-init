@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Button, Modal, Toast, Card } from 'antd-mobile';
+import { Button, Modal, Card, InfiniteScroll, PullToRefresh } from 'antd-mobile';
 
 import { AddOutline } from 'antd-mobile-icons'
 
@@ -22,52 +22,75 @@ class EsintList extends Component {
       current: 1,
       panelShow: false,
       panelType: 0,
-      panelTitle: '新增'
+      panelTitle: '新增',
+      hasMore: false
     };
   }
 
   /**
    * @functionName getListData
-   * @param {Object} page 参数
+   * @param {Object} page 分页参数
+   * @param {Boolean} refresh 是否刷新
    * @description 获取表格数据
    * @author 张航
    * @date 2022-02-10 09:55:55
    * @version V1.0.0
    */
-  getListData (page = {}) {
-    const {get} = api;
+  async getListData (page = {}, refresh = false) {
+    const { get } = api;
 
-    const { pageNo = 1, pageSize = 1 } = page
-    axiosApi.post({
+    const { pageNo = 1, pageSize = 2 } = page
+    await axiosApi.post({
       url: get,
       data: {
         pageNo,
         pageSize
       }
     }).then(res => {
-      console.log(res);
-      const { response } = res
+      const { response } = res;
+      const hasMore = (response.pageNo * response.pageSize) < response.count;
+
+      let { data } = this.state;
+      if(refresh) {
+        data = response.users
+      } else {
+        data = [...data, ...response.users];
+      }
+      
       this.setState({
-        data: response.users,
+        data,
         total: response.count,
         current: response.pageNo,
-        pageSize: response.pageSize
+        pageSize: response.pageSize,
+        hasMore
       })
     });
+
+    return this.state.hasMore;
+  }
+  /**
+   * @functionName loadMore
+   * @description 加载更多
+   * @author 张航
+   * @date 2022-02-17 10:42:16
+   * @version V1.0.0
+   */
+  loadMore () {
+    const { current = 1, pageSize = 2 } = this.state;
+    const pageNo = current + 1;
+    return this.getListData({ pageNo, pageSize });
+    
   }
 
   /**
-   * @functionName changeList
-   * @param {Object} page 参数
-   * @description 分页改变
+   * @functionName doRefresh
+   * @description 刷新列表
    * @author 张航
-   * @date 2022-02-14 15:39:39
+   * @date 2022-02-17 11:13:14
    * @version V1.0.0
    */
-  changeList (page) {
-    console.log(page)
-    const {current:pageNo, pageSize} = page;
-    this.getListData({pageNo, pageSize});
+  doRefresh () {
+    this.getListData({}, true);
   }
 
   /**
@@ -79,7 +102,7 @@ class EsintList extends Component {
    * @version V1.0.0
    */
   deleteData (data) {
-    const {id} = data
+    const { id } = data
     axiosApi.post({
       url: api.delete,
       data: {
@@ -127,10 +150,9 @@ class EsintList extends Component {
    * @version V1.0.0
    */
   editBtn (row) {
-    console.log(row)
     this.props.history.push({
-      pathname: 'edit',
-      state: row
+      pathname: `edit/${row.id}`,
+      // state: row
     })
   }
 
@@ -143,7 +165,7 @@ class EsintList extends Component {
    */
   creatBtn () {
     this.props.history.push({
-      pathname: 'edit'
+      pathname: 'edit/0'
     })
   }
 
@@ -179,65 +201,63 @@ class EsintList extends Component {
 
   render () {
     const {
-      columns = [],
       data = {},
-      total = 0,
-      current = 1,
-      pageSize = 1,
-      panelShow,
-      panelTitle
+      hasMore
     } = this.state;
     return (
       <div>
         <div className="handle-box"
-        onClick={() => this.creatBtn()}>
+          onClick={() => this.creatBtn()}>
           <AddOutline />
         </div>
-        <div>
-          {
-            data.map(item => {
-              return (
-                <Card
-                  title={
-                    <div style={{ fontWeight: 'normal' }}>
-                      {item.userName}
+        <PullToRefresh onRefresh={() => this.doRefresh()}>
+          <div>
+            {
+              data.map(item => {
+                return (
+                  <Card
+                    title={
+                      <div style={{ fontWeight: 'normal' }}>
+                        {item.userName}
+                      </div>
+                    }
+                    // onBodyClick={() => this.onBodyClick()}
+                    // onHeaderClick={() => this.onHeaderClick()}
+                    style={{ borderRadius: '16px' }}
+                    key={item.id}
+                  >
+                    <div style={{ textAlign: 'left' }}>
+                      <div>年龄：{item.userAge}</div>
+                      <div>性别：{item.userSex}</div>
+                      <div>邮箱：{item.userMail}</div>
+                      <div>手机号：{item.userPhone}</div>
+                      <div>地址：{item.userAddress}</div>
                     </div>
-                  }
-                  // onBodyClick={() => this.onBodyClick()}
-                  // onHeaderClick={() => this.onHeaderClick()}
-                  style={{ borderRadius: '16px' }}
-                  key={item.id}
-                >
-                  <div style={{textAlign: 'left'}}>
-                    <div>年龄：{item.userAge}</div>
-                    <div>性别：{item.userSex}</div>
-                    <div>邮箱：{item.userMail}</div>
-                    <div>手机号：{item.userPhone}</div>
-                    <div>地址：{item.userAddress}</div>
-                  </div>
-                  <div style={{textAlign: 'right'}}  onClick={e => e.stopPropagation()}>
-                    <Button
-                      color='primary'
-                      size='small'
-                      style={{marginRight: '6px'}}
-                      onClick={() => this.editBtn(item)}
-                    >
-                      编辑
-                    </Button>
-                    <Button
-                      color='danger'
-                      size='small'
-                      onClick={() => this.deleteBtn(item)}
-                    >
-                      删除
-                    </Button>
-                  </div>
-                </Card>
-              )
-            })
+                    <div style={{ textAlign: 'right' }} onClick={e => e.stopPropagation()}>
+                      <Button
+                        color='primary'
+                        size='small'
+                        style={{ marginRight: '6px' }}
+                        onClick={() => this.editBtn(item)}
+                      >
+                        编辑
+                      </Button>
+                      <Button
+                        color='danger'
+                        size='small'
+                        onClick={() => this.deleteBtn(item)}
+                      >
+                        删除
+                      </Button>
+                    </div>
+                  </Card>
+                )
+              })
 
-          }  
-        </div>  
+            }
+          </div>
+        </PullToRefresh>
+        <InfiniteScroll loadMore={() => this.loadMore()} hasMore={hasMore} />
       </div>
     );
   }

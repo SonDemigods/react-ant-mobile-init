@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Button, Modal, Form, Input, Stepper, Selector } from 'antd-mobile';
+import { Button, Form, Input, Stepper, Selector } from 'antd-mobile';
 
 import { axiosApi } from '../../utils';
 
@@ -14,9 +14,7 @@ class EsintEdit extends Component {
 
     this.formRef = React.createRef();
 
-    this.state = {
-      data: []
-    };
+    this.state = {};
   }
 
   /**
@@ -139,8 +137,19 @@ class EsintEdit extends Component {
    * @version V1.0.0
    */
   init () {
-    const {state = {}} = this.props.location;
-    this.setFormData(state);
+    const {id = '0'} = this.props.match.params;
+    if (id === '0') {
+      return;
+    }
+    axiosApi.post({
+      url: api.findById,
+      data: {
+        id
+      }
+    }).then(res => {
+      this.setFormData(res.response);
+    });
+    
   }
 
   componentDidMount () {
@@ -148,15 +157,11 @@ class EsintEdit extends Component {
   }
 
   render () {
-    const {
-      data = {}
-    } = this.state;
     return (
       <div>
         
           <Form
             ref={this.formRef}
-            labelCol={{ span: 5 }}
           >
             <Form.Item
               name="id"
